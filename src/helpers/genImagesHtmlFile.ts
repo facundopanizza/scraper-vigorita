@@ -1,81 +1,122 @@
-export const genImageHtmlFile = (numberOfImages: number) => {
-  const images: string[] = [];
+export const genImageHtmlFile = (
+  productInfo: { title: string; value: string }[][]
+): string => {
+  return `
+  <div style="display: flex; column-gap: 1px; flex-wrap: wrap; justify-content: center;">
+  ${productInfo.map(
+    (item, i) =>
+      `
+    <div>
+  <img
+    class="openModal"
+    src="images/${i + 1}.jpg"
+    width="250px"
+    style="cursor: pointer"
+  />
+</div>
 
-  for (let i = 0; i < numberOfImages; i++) {
-    images.push(`
-  <div class="vc_grid-item vc_clearfix vc_col-sm-3">
-    <div class="vc_grid-item-mini vc_clearfix">
-      <div class="vc_gitem-animated-block">
-        <div
-          class="vc_gitem-zone vc_gitem-zone-a vc-gitem-zone-height-mode-auto vc-gitem-zone-height-mode-auto-1-1 vc_gitem-is-link"
-          style="
-            background-image: url('images/${i + 1}.jpg') !important;
-          "
+<div
+  id="modal"
+  style="
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: none;
+  "
+>
+  <div
+    id="modalDialog"
+    style="
+      position: fixed;
+      z-index: 999999;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      max-width: 500px;
+      background-color: white;
+      border-radius: 15px;
+      max-height: 100%;
+      overflow-y: auto;
+    "
+  >
+    <div style="display: flex; justify-content: center; position: relative">
+      <div
+        class="button-close-modal"
+        style="
+          cursor: pointer;
+          position: absolute;
+          right: 10px;
+          top: 10px;
+          width: 24px;
+          height: 24px;
+          background-color: white;
+          color: black;
+          opacity: 0.5;
+          border-radius: 100%;
+        "
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
         >
-          <a
-            href="images/${i + 1}.jpg"
-            title="1"
-            data-rel="prettyPhoto[rel--842915379]"
-            data-vc-gitem-zone="prettyphotoLink"
-            class="vc_gitem-link prettyphoto vc-zone-link vc-prettyphoto-link"
-          ></a>
-          <img
-            src="images/${i + 1}.jpg"
-            class="vc_gitem-zone-img"
-            alt=""
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"
           />
-          <div class="vc_gitem-zone-mini"></div>
-        </div>
+        </svg>
+      </div>
+
+      <div style="width: 100%">
+        <img
+          src="#"
+          id="imageOfModal"
+          style="
+            width: 100%;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+          "
+        />
       </div>
     </div>
-    <div class="vc_clearfix"></div>
-  </div>
-  `);
-  }
 
-  return `
-  <style type="text/css">
-img.wp-smiley,
-img.emoji {
-  display: inline !important;
-  border: none !important;
-  box-shadow: none !important;
-  height: 1em !important;
-  width: 1em !important;
-  margin: 0 0.07em !important;
-  vertical-align: -0.1em !important;
-  background: none !important;
-  padding: 0 !important;
-}
-</style>
-<link
-rel="stylesheet"
-id="dashicons-css"
-href="/wp-includes/css/dashicons.min.css?ver=5.7.4"
-media="all"
-/>
-<link
-rel="stylesheet"
-id="wp-jquery-ui-dialog-css"
-href="/wp-includes/css/jquery-ui-dialog.min.css?ver=5.7.4"
-media="all"
-/>
-<link
-rel="stylesheet"
-id="thickbox-css"
-href="/wp-includes/js/thickbox/thickbox.css?ver=5.7.4"
-media="all"
-/>
-<div
-class="vc_grid vc_row vc_grid-gutter-1px vc_pageable-wrapper vc_hook_hover"
-data-vc-pageable-content="true"
->
-<div
-  class="vc_pageable-slide-wrapper vc_clearfix"
-  data-vc-grid-content="true"
->
-${images.join('')}
+
+    <div style="padding: 3px 6px">
+      <h3 style="font-size: 16px; font-weight: 500">FICHA TÉCNICA</h3>
+
+      ${item
+        .map(
+          (info) => `
+      <div
+        style="
+          display: flex;
+          font-size: 14px;
+          font-weight: 400;
+          border-bottom: 1px solid rgb(236, 236, 236);
+          justify-content: space-between;
+        "
+      >
+        <div style="color: rgb(119, 119, 119); font-weight: 600">${info.title}</div>
+        <div>${info.value}</div>
+      </div>
+`
+        )
+        .join('')}
+    </div>
+  </div>
 </div>
-</div>
+  `
+  ).join('')}
+</div> 
   `;
 };

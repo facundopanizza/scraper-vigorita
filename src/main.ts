@@ -59,19 +59,15 @@ const currentPage = 'https://vigorita.com.ar/';
     return items;
   });
 
-  for await (const [index, item  ] of (items ?? []).entries()) {
-    console.log('Getting item', item.name, `${index + 1} of ${items?.length}`)
+  for await (const [index, item] of (items ?? []).entries()) {
+    console.log('Getting item', item.name, `${index + 1} of ${items?.length}`, item.url);
 
     const folderName = item.name.toLowerCase().split(' ').join('-');
     await page.goto(item.url);
 
     const elements = await page.evaluate(() =>
-      Array.from(
-        document.querySelectorAll(
-          '.attachment-woocommerce_thumbnail.size-woocommerce_thumbnail.wvs-archive-product-image'
-        )
-      )
-        .map((e) => e.getAttribute('src'))
+      Array.from(document.querySelectorAll('.image-fade_in_back a'))
+        .map((e) => e.getAttribute('href'))
         .reduce((prev, cur) => (cur ? [...prev, cur] : prev), Array<string>())
     );
 
@@ -80,15 +76,53 @@ const currentPage = 'https://vigorita.com.ar/';
       fs.mkdirSync(dirToCreate, { recursive: true });
     }
 
-    await Promise.all(
-      elements.map((image, index) =>
-        downloadImage(image, `${dirToCreate}/${index + 1}.jpg`)
-      )
-    );
+    const imagesInfo: { title: string; value: string }[][] = [];
+
+    for (const [index, anchorLink] of elements.entries()) {
+      try {
+        await page.goto(anchorLink);
+        await page.waitForSelector(
+          '.woocommerce-product-gallery__image.slide.first a'
+        );
+      } catch (error) {
+        console.log('Failed to get image for:', anchorLink);
+        continue;
+      }
+
+      const image = await page.evaluate(() =>
+        document
+          .querySelector('.woocommerce-product-gallery__image.slide.first a')
+          ?.getAttribute('href')
+      );
+
+      const infoForImage = await page.evaluate(() => {
+        const info = Array.from(
+          document.querySelectorAll(
+            '.woocommerce-product-attributes.shop_attributes .woocommerce-product-attributes-item'
+          )
+        ).filter((item) => !item.textContent?.includes('Precio'));
+
+        return info.map((item) => ({
+          title: (item.querySelector('th')?.textContent ?? '').replace(
+            '\n',
+            ''
+          ).trim(),
+          value: (item.querySelector('td')?.textContent ?? '').replace(
+            '\n',
+            ''
+          ).trim(),
+        }));
+      });
+
+      imagesInfo.push(infoForImage);
+
+      await downloadImage(image ?? '', `${dirToCreate}/${index + 1}.jpg`);
+    }
 
     categories.push(genItemForCategory(item.name, folderName));
 
-    const imageHtmlFile = genImageHtmlFile(elements.length);
+    const imageHtmlFile = genImageHtmlFile(imagesInfo);
+
     fs.writeFileSync(
       `${generatedFilesFolder}/${folderName}/images.html`,
       imageHtmlFile
@@ -105,7 +139,8 @@ const currentPage = 'https://vigorita.com.ar/';
     `${generatedFilesFolder}/categories.html`,
     categories.join('')
   );
-  
-  await page.close()
+
+  console.log('Finished');
+  await page.close();
   return;
 })();

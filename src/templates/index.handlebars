@@ -6,6 +6,45 @@
 	<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 		<meta name="theme-color" content="#3d5e93"/>	<link rel="profile" href="https://gmpg.org/xfn/11" />
+      <script>
+  const changeCurrentImage = (imageUrl) => {
+    if (!imageUrl) return;
+
+    document.querySelector('#imageOfModal').setAttribute('src', imageUrl);
+  };
+
+  const openModal = (imageUrl) => {};
+
+  const setModalVisibility = (show) => {
+    document.querySelector('#modal').style.display = show ? 'block' : 'none';
+  };
+
+  const isModalVisible = () => {
+    return document.querySelector('#modal').style.display === 'block';
+  };
+
+  document.addEventListener(
+    'click',
+    function (event) {
+      if (
+        !event.target.closest('#modalDialog') ||
+        event.target.closest('.button-close-modal')
+      ) {
+        setModalVisibility(false);
+      }
+
+      if (!event.target.closest('.modalDialog')) {
+        changeCurrentImage(
+          event.target.closest('.openModal').getAttribute('src')
+        );
+
+        setModalVisibility(true);
+      }
+    },
+    false
+  );
+</script>
+
 	        <script type="text/javascript">
             if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                 var originalAddEventListener = EventTarget.prototype.addEventListener,
