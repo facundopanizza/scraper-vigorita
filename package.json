@@ -12,6 +12,7 @@
     "handlebars": "^4.7.8",
     "nodemon": "^3.0.1",
     "puppeteer": "^21.1.0",
+    "sharp": "^0.32.5",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   }
